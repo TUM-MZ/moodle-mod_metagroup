@@ -13,7 +13,7 @@ window.metaLink = jQuery.noConflict(true);
 function loadGroups(elem)
 {
     $.ajax({
-        url: M.cfg['wwwroot'] + '/enrol/meta/groups.json.php',
+        url: M.cfg['wwwroot'] + '/enrol/metagroup/groups.json.php',
         type: 'POST',
         data: {
             courseid: $(elem).val(),
