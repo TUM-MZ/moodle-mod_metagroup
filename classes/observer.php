@@ -34,52 +34,6 @@ require_once($CFG->dirroot.'/enrol/metagroup/locallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_metagroup_observer extends enrol_metagroup_handler {
-
-    /**
-     * Triggered via user_enrolment_created event.
-     *
-     * @param \core\event\user_enrolment_created $event
-     * @return bool true on success.
-     */
-    public static function user_enrolment_created(\core\event\user_enrolment_created $event) {
-        if (!enrol_is_enabled('metagroup')) {
-            // No more enrolments for disabled plugins.
-            return true;
-        }
-
-        if ($event->other['enrol'] === 'metagroup') {
-            // Prevent circular dependencies - we can not sync metagroup enrolments recursively.
-            return true;
-        }
-
-        self::sync_course_instances($event->courseid, $event->relateduserid);
-        return true;
-    }
-
-    /**
-     * Triggered via user_enrolment_deleted event.
-     *
-     * @param \core\event\user_enrolment_deleted $event
-     * @return bool true on success.
-     */
-    public static function user_enrolment_deleted(\core\event\user_enrolment_deleted $event) {
-        return true;
-        if (!enrol_is_enabled('metagroup')) {
-            // This is slow, let enrol_metagroup_sync() deal with disabled plugin.
-            return true;
-        }
-
-        if ($event->other['enrol'] === 'metagroup') {
-            // Prevent circular dependencies - we can not sync metagroup enrolments recursively.
-            return true;
-        }
-        debugging("User deleted");
-
-        self::sync_course_instances($event->courseid, $event->relateduserid);
-
-        return true;
-    }
-
     /**
      * Triggered via user_enrolment_updated event.
      *
@@ -127,8 +81,6 @@ class enrol_metagroup_observer extends enrol_metagroup_handler {
             // No more enrolments for disabled plugins.
             return true;
         }
-
-        debugging(var_dump($event));
 
         self::sync_course_instances($event->courseid, $event->relateduserid, $event->objectid);
         return true;

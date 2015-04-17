@@ -46,7 +46,11 @@ class enrol_metagroup_handler {
         static $preventrecursion = false;
 
         // does anything want to sync with this parent?
-        if (!$enrols = $DB->get_records('enrol', array('customint1'=>$courseid, 'customint2'=>$groupid, 'enrol'=>'metagroup'), 'id ASC')) {
+        if ($groupid)
+            $enrols = $DB->get_records('enrol', array('customint1'=>$courseid, 'customint2'=>$groupid, 'enrol'=>'metagroup'), 'id ASC');
+        else
+            $enrols = $DB->get_records('enrol', array('customint1'=>$courseid, 'enrol'=>'metagroup'), 'id ASC');
+        if (!$enrols) {
             return;
         }
 
