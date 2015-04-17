@@ -108,13 +108,10 @@ class enrol_metagroup_observer extends enrol_metagroup_handler {
     * @return bool true on success
     */
     public static function group_member_added(\core\event\group_member_added $event) {
-        return true;
         if (!enrol_is_enabled('metagroup')) {
             // No more enrolments for disabled plugins.
             return true;
         }
-
-        debugging("Member added");
 
         self::sync_course_instances($event->courseid, $event->relateduserid, $event->objectid);
         return true;
@@ -131,7 +128,6 @@ class enrol_metagroup_observer extends enrol_metagroup_handler {
             return true;
         }
 
-        debugging("Member removed");
         debugging(var_dump($event));
 
         self::sync_course_instances($event->courseid, $event->relateduserid, $event->objectid);
