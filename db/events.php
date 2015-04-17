@@ -27,18 +27,17 @@ defined('MOODLE_INTERNAL') || die();
 
 // List of observers.
 $observers = array(
-
-    array(
-        'eventname'   => '\core\event\user_enrolment_created',
-        'callback'    => 'enrol_metagroup_observer::user_enrolment_created',
-    ),
-    array(
-        'eventname'   => '\core\event\user_enrolment_deleted',
-        'callback'    => 'enrol_metagroup_observer::user_enrolment_deleted',
-    ),
     array(
         'eventname'   => '\core\event\user_enrolment_updated',
         'callback'    => 'enrol_metagroup_observer::user_enrolment_updated',
+    ),
+        array(
+        'eventname'   => '\core\event\group_member_added',
+        'callback'    => 'enrol_metagroup_observer::group_member_added',
+    ),
+    array(
+        'eventname'   => '\core\event\group_member_removed',
+        'callback'    => 'enrol_metagroup_observer::group_member_removed',
     ),
     array(
         'eventname'   => '\core\event\role_assigned',

@@ -40,13 +40,13 @@ class enrol_metagroup_handler {
      * @param int $userid
      * @return void
      */
-    protected static function sync_course_instances($courseid, $userid) {
+    protected static function sync_course_instances($courseid, $userid, $groupid=null) {
         global $DB;
 
         static $preventrecursion = false;
 
         // does anything want to sync with this parent?
-        if (!$enrols = $DB->get_records('enrol', array('customint1'=>$courseid, 'enrol'=>'metagroup'), 'id ASC')) {
+        if (!$enrols = $DB->get_records('enrol', array('customint1'=>$courseid, 'customint2'=>$groupid, 'enrol'=>'metagroup'), 'id ASC')) {
             return;
         }
 
@@ -94,16 +94,29 @@ class enrol_metagroup_handler {
         list($enabled, $params) = $DB->get_in_or_equal(explode(',', $CFG->enrol_plugins_enabled), SQL_PARAMS_NAMED, 'e');
         $params['userid'] = $userid;
         $params['parentcourse'] = $instance->customint1;
+        $params['parentgroup'] = $instance->customint2;
+        debugging(var_dump($params));
+        $DB->set_debug(true);
         $sql = "SELECT ue.*
                   FROM {user_enrolments} ue
                   JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol <> 'metagroup' AND e.courseid = :parentcourse AND e.enrol $enabled)
-                 WHERE ue.userid = :userid";
+                  JOIN {groups_members} grp on grp.groupid=:parentgroup and grp.userid=ue.userid
+                  WHERE ue.userid = :userid
+                 ";
         $parentues = $DB->get_records_sql($sql, $params);
+        debugging(var_dump($parentues));
         // current enrolments for this instance
+        debugging($instance->id);
+        debugging($userid);
         $ue = $DB->get_record('user_enrolments', array('enrolid'=>$instance->id, 'userid'=>$userid));
 
         // first deal with users that are not enrolled in parent
         if (empty($parentues)) {
+            debugging("Removing user");
+            if ($ue)
+                debugging(var_dump($ue));
+            else
+                debugging("WTF");
             self::user_not_supposed_to_be_here($instance, $ue, $context, $plugin);
             return;
         }
@@ -273,7 +286,7 @@ function enrol_metagroup_sync($courseid = NULL, $verbose = false) {
 
     $allroles = get_all_roles();
 
-    //see if group field is null or not and set isgroup variable
+    //see if group field is null or not and set groupflag variable
     $onecourse = $courseid ? "AND e.courseid = :courseid" : "";
     list($enabled, $params) = $DB->get_in_or_equal(explode(',', $CFG->enrol_plugins_enabled), SQL_PARAMS_NAMED, 'e');
     $params['courseid'] = $courseid;
@@ -338,18 +351,19 @@ function enrol_metagroup_sync($courseid = NULL, $verbose = false) {
 
 
     // unenrol as necessary - ignore enabled flag, we want to get rid of existing enrols in any case
-    $groupquery = $groupflag ? "JOIN {groups_members} g ON(g.groupid = e.customint2 AND g.userid = ue.userid)" : " ";
+    $groupquery = $groupflag ? "LEFT JOIN {groups_members} g ON(g.groupid = e.customint2 AND g.userid = ue.userid)" : " ";
     $onecourse = $courseid ? "AND e.courseid = :courseid" : "";
     list($enabled, $params) = $DB->get_in_or_equal(explode(',', $CFG->enrol_plugins_enabled), SQL_PARAMS_NAMED, 'e');
     $params['courseid'] = $courseid;
-    $sql = "SELECT ue.*
+    $sql = "SELECT ue.*,
+              g.groupid
               FROM {user_enrolments} ue
               JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol = 'metagroup' $onecourse)
          LEFT JOIN ({user_enrolments} xpue
                       JOIN {enrol} xpe ON (xpe.id = xpue.enrolid AND xpe.enrol <> 'metagroup' AND xpe.enrol $enabled)
                    ) ON (xpe.courseid = e.customint1 AND xpue.userid = ue.userid)
-            $groupquery
-            WHERE xpue.userid IS NULL";
+            LEFT JOIN {groups_members} g ON(g.groupid = e.customint2 AND g.userid = ue.userid)
+            WHERE g.groupid is NULL";
     $rs = $DB->get_recordset_sql($sql, $params);
     foreach($rs as $ue) {
         if (!isset($instances[$ue->enrolid])) {

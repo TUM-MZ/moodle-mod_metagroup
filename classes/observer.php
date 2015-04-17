@@ -63,6 +63,7 @@ class enrol_metagroup_observer extends enrol_metagroup_handler {
      * @return bool true on success.
      */
     public static function user_enrolment_deleted(\core\event\user_enrolment_deleted $event) {
+        return true;
         if (!enrol_is_enabled('metagroup')) {
             // This is slow, let enrol_metagroup_sync() deal with disabled plugin.
             return true;
@@ -72,6 +73,7 @@ class enrol_metagroup_observer extends enrol_metagroup_handler {
             // Prevent circular dependencies - we can not sync metagroup enrolments recursively.
             return true;
         }
+        debugging("User deleted");
 
         self::sync_course_instances($event->courseid, $event->relateduserid);
 
@@ -99,7 +101,42 @@ class enrol_metagroup_observer extends enrol_metagroup_handler {
 
         return true;
     }
+    /**
+    * Triggered via group_member_added event
+    * 
+    * @param \core\event\group_member_added $event
+    * @return bool true on success
+    */
+    public static function group_member_added(\core\event\group_member_added $event) {
+        return true;
+        if (!enrol_is_enabled('metagroup')) {
+            // No more enrolments for disabled plugins.
+            return true;
+        }
 
+        debugging("Member added");
+
+        self::sync_course_instances($event->courseid, $event->relateduserid, $event->objectid);
+        return true;
+    }
+    /**
+    * Triggered via group_member_removed event
+    * 
+    * @param \core\event\group_member_removed $event
+    * @return bool true on success
+    */
+    public static function group_member_removed(\core\event\group_member_removed $event) {
+        if (!enrol_is_enabled('metagroup')) {
+            // No more enrolments for disabled plugins.
+            return true;
+        }
+
+        debugging("Member removed");
+        debugging(var_dump($event));
+
+        self::sync_course_instances($event->courseid, $event->relateduserid, $event->objectid);
+        return true;
+    }
     /**
      * Triggered via role_assigned event.
      *
