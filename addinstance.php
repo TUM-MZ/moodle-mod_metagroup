@@ -118,8 +118,10 @@ foreach($courses as $key => $value) {
     echo '<option value="'. $key.'" title="'. $value.'">'.$value.'</option>';
 }
 echo '</select>';
+echo '</div>';
+echo '<div>';
 echo '<label for="id_groups">Group</label>';
-echo '<p><select id="id_groups" name="groups"></select></p>';
+echo '<select id="id_groups" name="groups"></select>';
 echo '<p><input type="hidden" name="id" value="'.$course->id.'"></p>';
 echo '<p><input type="submit" name ="submit" value="Enroll"/>'."\n";
 echo '<input type="submit" name ="submit" value="Cancel"/></p>'."\n";
