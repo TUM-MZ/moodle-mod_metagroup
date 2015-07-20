@@ -21,7 +21,9 @@ define(['jquery'], function($) {
                         if (regex.test($(link).text())) {
                             $(link).css("display", "inline");
                             if (!atLeastOneSelected) {
-                                $("#id_link").val($(link).val());
+                                $("#id_link")
+                                    .val($(link).val())
+                                    .change();
                                 atLeastOneSelected = true;
                             }
                         } else {
