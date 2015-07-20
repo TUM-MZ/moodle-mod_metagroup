@@ -1,8 +1,9 @@
 define(['jquery'], function($) {
-    module = {
+    "use strict";
+    var module = {
         initialize: function () {
             $(function() {
-                $("#id_link").on("change", function (e) {
+                $("#id_link").on("change", function () {
                     module.loadGroups(this);
                 });
                 $("#course_filter").keyup(module.debounce(function(ev) {
@@ -11,8 +12,9 @@ define(['jquery'], function($) {
                         ev.preventDefault();
                         return;
                     }
-                    var atLeastOneSelected = false;
-                    $("#id_link > option").each(function(index, link) {
+                    var atLeastOneSelected;
+                    atLeastOneSelected = false;
+                    $("#id_link").find("option").each(function(index, link) {
                         var regex = new RegExp(".*" + filter_expr + ".*", 'i');
                         if (regex.test($(link).text())) {
                             $(link).css("display", "inline");
@@ -26,7 +28,7 @@ define(['jquery'], function($) {
                             $(link).css("display", "none");
                         }
                     });
-                }, 350));
+                }, 250));
             });
         },
         loadGroups: function (elem) {
@@ -73,7 +75,7 @@ define(['jquery'], function($) {
                 // Avoid a V8 JIT bug in Chrome 19-20.
                 // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
                 var type = typeof value;
-                return !!value && (type == 'object' || type == 'function');
+                return !!value && (type === 'object' || type === 'function');
             }
 
             var args,
@@ -88,8 +90,8 @@ define(['jquery'], function($) {
                 maxWait = false,
                 trailing = true;
 
-            if (typeof func != 'function') {
-                throw new TypeError(FUNC_ERROR_TEXT);
+            if (typeof func !== 'function') {
+                throw new TypeError("First argument has to be a function");
             }
 
             wait = wait < 0 ? 0 : (+wait || 0);
@@ -98,12 +100,12 @@ define(['jquery'], function($) {
                 trailing = false;
             } else if (isObject(options)) {
                 leading = !!options.leading;
-                maxWait = 'maxWait' in options && nativeMax(+options.maxWait || 0, wait);
+                maxWait = 'maxWait' in options && Math.max(+options.maxWait || 0, wait);
                 trailing = 'trailing' in options ? !!options.trailing : trailing;
             }
-            var now = Date['now'] || function() {
+            var now = Date.now || function() {
                     return new Date().getTime();
-            };
+                };
 
 
             function cancel() {
@@ -149,15 +151,16 @@ define(['jquery'], function($) {
                 stamp = now();
                 thisArg = this;
                 trailingCall = trailing && (timeoutId || !leading);
+                var isCalled, leadingCall;
 
                 if (maxWait === false) {
-                    var leadingCall = leading && !timeoutId;
+                    leadingCall = leading && !timeoutId;
                 } else {
                     if (!maxTimeoutId && !leading) {
                         lastCalled = stamp;
                     }
-                    var remaining = maxWait - (stamp - lastCalled),
-                        isCalled = remaining <= 0 || remaining > maxWait;
+                    var remaining = maxWait - (stamp - lastCalled);
+                    isCalled = remaining <= 0 || remaining > maxWait;
 
                     if (isCalled) {
                         if (maxTimeoutId) {
