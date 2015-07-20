@@ -100,7 +100,7 @@ foreach ($rs as $c) {
     if (!has_capability('enrol/metagroup:selectaslinked', $coursecontext)) {
         continue;
     }
-    $courses[$c->id] = $coursecontext->get_context_name(false);
+    $courses[$c->id] = $c->fullname . ' (' . $c->shortname . ')';
 }
 $rs->close();
 
