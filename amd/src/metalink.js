@@ -1,22 +1,18 @@
 define(['jquery'], function($) {
     module = {
         initialize: function () {
-            //$('#id_groups').prop( "disabled", true );
             $(function() {
                 $("#id_link").on("change", function (e) {
                     module.loadGroups(this);
                 });
                 $("#course_filter").keyup(module.debounce(function(ev) {
-                    console.log("keyup");
                     var filter_expr = $("#course_filter").val().trim();
-                    console.log(filter_expr);
                     if (ev.code === 13) {
                         ev.preventDefault();
-                        return
+                        return;
                     }
                     var atLeastOneSelected = false;
                     $("#id_link > option").each(function(index, link) {
-                        console.log("Testing " + $(link).text());
                         var regex = new RegExp(".*" + filter_expr + ".*", 'i');
                         if (regex.test($(link).text())) {
                             $(link).css("display", "inline");
@@ -35,7 +31,7 @@ define(['jquery'], function($) {
         },
         loadGroups: function (elem) {
             $.ajax({
-                url: M.cfg['wwwroot'] + '/enrol/metagroup/groups.json.php',
+                url: M.cfg.wwwroot + '/enrol/metagroup/groups.json.php',
                 type: 'POST',
                 data: {
                     courseid: $(elem).val(),
@@ -72,12 +68,21 @@ define(['jquery'], function($) {
         },
         debounce: function (func, wait, options) {
             // shameslessly "stolen" from lodash
+
+            function isObject(value) {
+                // Avoid a V8 JIT bug in Chrome 19-20.
+                // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+                var type = typeof value;
+                return !!value && (type == 'object' || type == 'function');
+            }
+
             var args,
                 maxTimeoutId,
                 result,
                 stamp,
                 thisArg,
                 timeoutId,
+                leading,
                 trailingCall,
                 lastCalled = 0,
                 maxWait = false,
@@ -86,9 +91,10 @@ define(['jquery'], function($) {
             if (typeof func != 'function') {
                 throw new TypeError(FUNC_ERROR_TEXT);
             }
+
             wait = wait < 0 ? 0 : (+wait || 0);
             if (options === true) {
-                var leading = true;
+                leading = true;
                 trailing = false;
             } else if (isObject(options)) {
                 leading = !!options.leading;
@@ -99,12 +105,6 @@ define(['jquery'], function($) {
                     return new Date().getTime();
             };
 
-            function isObject(value) {
-                // Avoid a V8 JIT bug in Chrome 19-20.
-                // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
-                var type = typeof value;
-                return !!value && (type == 'object' || type == 'function');
-            }
 
             function cancel() {
                 if (timeoutId) {
@@ -187,8 +187,7 @@ define(['jquery'], function($) {
             }
             debounced.cancel = cancel;
             return debounced;
-    }
-
-}
+        }
+    };
     return module;
 });
