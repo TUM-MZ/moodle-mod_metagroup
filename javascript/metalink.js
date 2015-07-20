@@ -1,4 +1,4 @@
-define(['jquery'], function($) {
+module = (function($) {
     module = {
         initialize: function () {
             $(function() {
@@ -190,4 +190,6 @@ define(['jquery'], function($) {
         }
     };
     return module;
-});
+})(jQuery.noConflict(true));
+
+module.initialize();
