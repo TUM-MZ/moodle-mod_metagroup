@@ -23,6 +23,8 @@
  */
 
 require('../../config.php');
+global $DB, $CFG;
+
 require_once("$CFG->dirroot/enrol/metagroup/addinstance_form.php");
 require_once("$CFG->dirroot/enrol/metagroup/locallib.php");
 //print_r($_POST);
