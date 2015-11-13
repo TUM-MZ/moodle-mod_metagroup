@@ -42,7 +42,14 @@ if ($form_data = $mform->get_data()) {
             if ($parent_course_group){
                 $course_list[] = $course->id;       // add course id in list, for sync call
                 $enrol->add_instance($course, array('customint1'=>$parent_course->id, 'customint2'=>$parent_course_group));
+                echo "Enrolment successful for '".implode($pieces, ','). "' <br>";
             }
+            else{
+                echo "Enrolment failed for '". implode($pieces, ',')."'. Invalid group <br>";
+            }
+        }
+        else{
+            echo "Enrolment failed for '". implode($pieces, ',')."'. Invalid course <br>";
         }
     }
 //    for unique course list, call metagroup sync
@@ -50,11 +57,10 @@ if ($form_data = $mform->get_data()) {
     foreach ($course_list as $cid){
         enrol_metagroup_sync($cid);
     }
-    
+
 
     unset($content);
 }
-
 
 $mform->display();
 echo $OUTPUT->footer();
