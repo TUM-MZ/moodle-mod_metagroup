@@ -24,21 +24,32 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$newsettings = $settings;
+
+if ($hassiteconfig) {
+    $ADMIN->add('enrolments', new admin_category('enrol_metagroup', new lang_string('pluginname', 'enrol_metagroup')));
+    $ADMIN->add('enrol_metagroup', $newsettings);
+    $ADMIN->add('enrol_metagroup', new admin_externalpage('handlecsv', get_string('handlecsv', 'enrol_metagroup'), $CFG->wwwroot . '/enrol/metagroup/handle_csv.php'));
+}
+
+
+$settings = null;
+
 if ($ADMIN->fulltree) {
 
     //--- general settings -----------------------------------------------------------------------------------
-    $settings->add(new admin_setting_heading('enrol_metagroup_settings', '', get_string('pluginname_desc', 'enrol_metagroup')));
+    $newsettings->add(new admin_setting_heading('enrol_metagroup_settings', '', get_string('pluginname_desc', 'enrol_metagroup')));
     if (!during_initial_install()) {
         $allroles = role_fix_names(get_all_roles(), null, ROLENAME_ORIGINALANDSHORT, true);
-        $settings->add(new admin_setting_configmultiselect('enrol_metagroup/nosyncroleids', get_string('nosyncroleids', 'enrol_metagroup'), get_string('nosyncroleids_desc', 'enrol_metagroup'), array(), $allroles));
+        $newsettings->add(new admin_setting_configmultiselect('enrol_metagroup/nosyncroleids', get_string('nosyncroleids', 'enrol_metagroup'), get_string('nosyncroleids_desc', 'enrol_metagroup'), array(), $allroles));
 
-        $settings->add(new admin_setting_configcheckbox('enrol_metagroup/syncall', get_string('syncall', 'enrol_metagroup'), get_string('syncall_desc', 'enrol_metagroup'), 1));
+        $newsettings->add(new admin_setting_configcheckbox('enrol_metagroup/syncall', get_string('syncall', 'enrol_metagroup'), get_string('syncall_desc', 'enrol_metagroup'), 1));
 
         $options = array(
             ENROL_EXT_REMOVED_UNENROL        => get_string('extremovedunenrol', 'core_enrol'),
             ENROL_EXT_REMOVED_SUSPEND        => get_string('extremovedsuspend', 'core_enrol'),
             ENROL_EXT_REMOVED_SUSPENDNOROLES => get_string('extremovedsuspendnoroles', 'core_enrol'),
         );
-        $settings->add(new admin_setting_configselect('enrol_metagroup/unenrolaction', get_string('extremovedaction', 'enrol'), get_string('extremovedaction_help', 'enrol'), ENROL_EXT_REMOVED_SUSPENDNOROLES, $options));
+        $newsettings->add(new admin_setting_configselect('enrol_metagroup/unenrolaction', get_string('extremovedaction', 'enrol'), get_string('extremovedaction_help', 'enrol'), ENROL_EXT_REMOVED_SUSPENDNOROLES, $options));
     }
 }

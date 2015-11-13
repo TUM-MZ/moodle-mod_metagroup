@@ -243,6 +243,16 @@ class enrol_metagroup_handler {
 }
 
 /**
+ * Gets course id from short name
+ * @param $shortname string
+ * @return course object  course id or false if none found
+ */
+function get_course_from_shortname($shortname){
+    global $DB;
+    return $DB->get_record('course', array('shortname'=>$shortname));
+}
+
+/**
  * Sync all metagroup course links.
  *
  * @param int $courseid one course, empty mean all

@@ -32,3 +32,7 @@ $string['pluginname'] = 'Course metagroup link';
 $string['pluginname_desc'] = 'Course metagroup link enrolment plugin synchronises enrolments and roles in two different courses.';
 $string['syncall'] = 'Synchronise all enrolled users';
 $string['syncall_desc'] = 'If enabled all enrolled users are synchronised even if they have no role in parent course, if disabled only users that have at least one synchronised role are enrolled in child course.';
+$string['handlecsv'] = 'Import from csv';
+$string['csvfile'] = 'CSV file';
+$string['import'] = 'Import';
+$string['csvfileerror'] = 'Invalid csv file';
