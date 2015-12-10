@@ -40,9 +40,14 @@ if ($form_data = $mform->get_data()) {
         if($course and $parent_course){
             $parent_course_group = groups_get_group_by_name($parent_course->id, trim($pieces[2]));
             if ($parent_course_group){
-                $course_list[] = $course->id;       // add course id in list, for sync call
-                $enrol->add_instance($course, array('customint1'=>$parent_course->id, 'customint2'=>$parent_course_group));
-                echo "Enrolment successful for '".implode($pieces, ','). "' <br>";
+                if(!enrolment_exists($course, $parent_course->id, $parent_course_group)){
+                    $course_list[] = $course->id;       // add course id in list, for sync call
+                    $enrol->add_instance($course, array('customint1'=>$parent_course->id, 'customint2'=>$parent_course_group));
+                    echo "Enrolment successful for '".implode($pieces, ','). "' <br>";
+                }
+                else{
+                    echo "Enrolment already exists for '".implode($pieces, ','). "' <br>";
+                }
             }
             else{
                 echo "Enrolment failed for '". implode($pieces, ',')."'. Invalid group <br>";

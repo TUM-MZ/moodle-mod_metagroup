@@ -253,6 +253,21 @@ function get_course_from_shortname($shortname){
 }
 
 /**
+ * @param $course course object
+ * @param $metacourse_id    course id
+ * @param $metacourse_group     group id
+ * @return bool     whether enrolment exists
+ */
+function enrolment_exists($course, $metacourse_id, $metacourse_group){
+    global $DB;
+    $count = $DB->count_records('enrol', array('courseid'=>$course->id, 'customint1'=>$metacourse_id, 'customint2'=>$metacourse_group));
+    if ($count)
+        return true;
+    else
+        return false;
+}
+
+/**
  * Sync all metagroup course links.
  *
  * @param int $courseid one course, empty mean all
