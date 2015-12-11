@@ -35,4 +35,16 @@ $string['syncall_desc'] = 'If enabled all enrolled users are synchronised even i
 $string['handlecsv'] = 'Import from csv';
 $string['csvfile'] = 'CSV file';
 $string['import'] = 'Import';
+$string['next'] = 'Next';
 $string['csvfileerror'] = 'Invalid csv file';
+$string['linkedgroup'] = 'Link group';
+$string['remarks'] = 'Remarks';
+$string['course'] = 'Course';
+
+$string['format_error'] = 'Format error. 3 items per row';
+$string['course_error'] = 'Invalid course';
+$string['link_course_error'] = 'Invalid link course';
+$string['link_group_error'] = 'Invalid link group';
+$string['existing_error'] = 'Enrolment already exists';
+$string['eligibile'] = 'Enrolment will be added';
+
