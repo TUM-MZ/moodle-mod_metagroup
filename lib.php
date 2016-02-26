@@ -100,6 +100,11 @@ class enrol_metagroup_plugin extends enrol_plugin {
         return has_capability('enrol/meta:config', $context);
     }
 
+    public function can_hide_show_instance($instance) {
+        $context = context_course::instance($instance->courseid);
+        return has_capability('enrol/meta:config', $context);
+    }
+
     /**
      * Gets an array of the user enrolment actions
      *

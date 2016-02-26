@@ -21,10 +21,10 @@ $course_list = array();
 if (empty($from_cform)) {
     $cform_data = array();
 
-    if($form_data = $mform->get_data()){    # form 2
+    if($form_data = $mform->get_data()) {    # form 2
         $import_id = csv_import_reader::get_new_iid('handlecsv');
         $cir = new csv_import_reader($import_id, 'handlecsv');
-        $content = $mform->get_file_content('csvfile');     //    echo $content;
+        $content = $mform->get_file_content('csvfile');
 
         $read_count = $cir->load_csv_content($content, 'UTF-8', 'comma');
 
@@ -51,8 +51,8 @@ if (empty($from_cform)) {
 else{
     if(!empty($ddd)){
         $eligibles = unserialize($ddd);
-        foreach($eligibles as $row){
-            if(!enrolment_exists($row[0], $row[1], $row[2])){
+        foreach($eligibles as $row) {
+            if(!enrolment_exists($row[0], $row[1], $row[2])) {
                 $enrol->add_instance($row[0], array('customint1'=>$row[1], 'customint2'=>$row[2]));
                 $course_list[] = $row[0]->id;
             }
@@ -70,4 +70,3 @@ else{
 }
 echo $OUTPUT->footer();
 die();
-

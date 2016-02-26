@@ -268,6 +268,21 @@ function enrolment_exists($course, $metacourse_id, $metacourse_group){
 }
 
 /**
+ * Gets course shortname using the idnumber, if not found return input
+ * @param $shortname string
+ * @return course object or false if none found
+ */
+function get_course_from_idnumber_or_shortname($idnumber) {
+    global $DB;
+    $course = $DB->get_record('course', array('idnumber'=>$idnumber));
+    if ($course) {
+        return $course;
+    } else {
+        return $DB->get_record('course', array('shortname'=>$idnumber));
+    }
+}
+
+/**
  * Sync all metagroup course links.
  *
  * @param int $courseid one course, empty mean all
