@@ -15,7 +15,13 @@ define(['jquery'], function($) {
                     var atLeastOneSelected;
                     atLeastOneSelected = false;
                     $("#id_link").find("option").each(function(index, link) {
-                        var regex = new RegExp(".*" + filter_expr + ".*", 'i');
+                        var escaped_filter_expr = filter_expr
+                          .replace('(', '\\(')
+                          .replace(')', '\\)')
+                          .replace('[', '\\[')
+                          .replace(']', '\\]')
+                          .replace('.', '\\.');
+                        var regex = new RegExp(".*" + escaped_filter_expr + ".*", 'i');
                         if (regex.test($(link).text())) {
                             $(link).css("display", "inline");
                             if (!atLeastOneSelected) {
@@ -149,7 +155,7 @@ define(['jquery'], function($) {
             function debounced() {
                 args = arguments;
                 stamp = now();
-                thisArg = this;
+                thisArg = this;  //jshint ignore:line
                 trailingCall = trailing && (timeoutId || !leading);
                 var isCalled, leadingCall;
 
