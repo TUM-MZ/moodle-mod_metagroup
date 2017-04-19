@@ -48,12 +48,41 @@ if (!$enrol->get_newinstance_link($course->id)) {
 if($_POST){
     if(isset($_POST["groups"]))
     {
-        if($_POST["submit"] == "Cancel")
+        $linked_course_id = $_POST["link"];
+        if ($_POST["groups"] > 0) {
+            $linked_group_id = $_POST["groups"];
+        } else {
+            $linked_group_id = 0;
+        }
+
+        if($_POST["submit"] == "Cancel") {
             redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
-        else if($_POST["groups"] > 0)
+        }
+        $coursecontext = context_course::instance($linked_course_id);
+        if (!$course->visible and !has_capability('moodle/course:viewhiddencourses', $coursecontext)) {
+            // can't add a hidden course
+            redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
+        } else if (!has_capability('enrol/metagroup:selectaslinked', $coursecontext)) {
+            // need rights
+            redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
+        }
+
+        else if($_POST["groups"] > 0) {
+            $existing = $DB->get_records('enrol', array('enrol'=>'metagroup', 'courseid'=>$linked_course_id, 'customint2' => $linked_group_id), '', 'customint1, customint2, id');
+            if ($course->id == SITEID or $course->id == $course->id or !empty($existing)) {
+                // don't add the same group twice
+                redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
+            }
             $eid = $enrol->add_instance($course, array('customint1'=>$_POST["link"], 'customint2'=>$_POST["groups"]));
-        else
+        }
+        else {
+            $existing = $DB->get_records('enrol', array('enrol'=>'metagroup', 'courseid'=>$linked_course_id, 'customint2' => null), '', 'customint1, customint2, id');
+            if ($course->id == SITEID or $c->id == $course->id or !empty($existing)) {
+                // don't add the same course twice
+                redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
+            }
             $eid = $enrol->add_instance($course, array('customint1'=>$_POST["link"]));
+        }
         enrol_metagroup_sync($course->id);
         redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
     }
@@ -82,14 +111,13 @@ $PAGE->set_title(get_string('pluginname', 'enrol_metagroup'));
 
 
 //new variables to show the form here manually
-$existing = $DB->get_records('enrol', array('enrol'=>'metagroup', 'courseid'=>$course->id), '', 'customint1, customint2, id');
 $courses = array('' => get_string('choosedots'));
-$select = ', ' . context_helper::get_preload_record_columns_sql('ctx');
+$select = ', ' . context_helper::get_preload_record_columns_sql(' ctx');
 $join = "LEFT JOIN {context} ctx ON (ctx.instanceid = c.id AND ctx.contextlevel = :contextlevel)";
 $sql = "SELECT c.id, c.fullname, c.shortname, c.visible $select FROM {course} c $join ORDER BY c.sortorder ASC";
 $rs = $DB->get_recordset_sql($sql, array('contextlevel' => CONTEXT_COURSE));
 foreach ($rs as $c) {
-    if ($c->id == SITEID or $c->id == $course->id or isset($existing[$c->id])) {
+    if ($c->id == SITEID or $c->id == $course->id) {
         continue;
     }
     context_helper::preload_from_record($c);

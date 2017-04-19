@@ -39,16 +39,15 @@ class enrol_metagroup_addinstance_form extends moodleform {
         $course = $this->_customdata;
         $this->course = $course;
 
-        $existing = $DB->get_records('enrol', array('enrol'=>'metagroup', 'courseid'=>$course->id), '', 'customint1, id');
-
         // TODO: this has to be done via ajax or else it will fail very badly on large sites!
         $courses = array('' => get_string('choosedots'));
         $select = ', ' . context_helper::get_preload_record_columns_sql('ctx');
         $join = "LEFT JOIN {context} ctx ON (ctx.instanceid = c.id AND ctx.contextlevel = :contextlevel)";
         $sql = "SELECT c.id, c.fullname, c.shortname, c.visible $select FROM {course} c $join ORDER BY c.sortorder ASC";
+        debugging($sql);
         $rs = $DB->get_recordset_sql($sql, array('contextlevel' => CONTEXT_COURSE));
         foreach ($rs as $c) {
-            if ($c->id == SITEID or $c->id == $course->id or isset($existing[$c->id])) {
+            if ($c->id == SITEID or $c->id == $course->id) {
                 continue;
             }
             context_helper::preload_from_record($c);
@@ -88,12 +87,12 @@ class enrol_metagroup_addinstance_form extends moodleform {
             $errors['link'] = get_string('required');
         } else {
             $coursecontext = context_course::instance($c->id);
-            $existing = $DB->get_records('enrol', array('enrol'=>'metagroup', 'courseid'=>$this->course->id), '', 'customint1, id');
+            $existing = $DB->get_records('enrol', array('enrol'=>'metagroup', 'courseid'=>$this->course->id), '', 'customint1, customint2, id');
             if (!$c->visible and !has_capability('moodle/course:viewhiddencourses', $coursecontext)) {
                 $errors['link'] = get_string('error');
             } else if (!has_capability('enrol/metagroup:selectaslinked', $coursecontext)) {
                 $errors['link'] = get_string('error');
-            } else if ($c->id == SITEID or $c->id == $this->course->id or isset($existing[$c->id])) {
+            } else if ($c->id == SITEID or $c->id == $this->course->id or (isset($existing[$c->id]) and $existing[$c->id]['customint2'] == $data['groups'])) {
                 $errors['link'] = get_string('error');
             }
         }
