@@ -68,16 +68,19 @@ if($_POST){
         }
 
         else if($_POST["groups"] > 0) {
-            $existing = $DB->get_records('enrol', array('enrol'=>'metagroup', 'courseid'=>$linked_course_id, 'customint2' => $linked_group_id), '', 'customint1, customint2, id');
-            if ($course->id == SITEID or $course->id == $course->id or !empty($existing)) {
+            $existing = $DB->get_records('enrol', array('enrol'=>'metagroup', 'customint1'=>$linked_course_id, 'customint2' => $linked_group_id), '', 'customint1, customint2, id');
+            print_r($existing);
+            print_r($linked_course_id);
+            print_r($linked_group_id);
+            if ($course->id == SITEID or $linked_course_id == $course->id or !empty($existing)) {
                 // don't add the same group twice
                 redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
             }
-            $eid = $enrol->add_instance($course, array('customint1'=>$_POST["link"], 'customint2'=>$_POST["groups"]));
+            $eid = $enrol->add_instance($course, array('customint1'=>$linked_course_id, 'customint2'=>$linked_group_id));
         }
         else {
-            $existing = $DB->get_records('enrol', array('enrol'=>'metagroup', 'courseid'=>$linked_course_id, 'customint2' => null), '', 'customint1, customint2, id');
-            if ($course->id == SITEID or $c->id == $course->id or !empty($existing)) {
+            $existing = $DB->get_records('enrol', array('enrol'=>'metagroup', 'customint1'=>$linked_course_id, 'customint2' => null), '', 'customint1, customint2, id');
+            if ($course->id == SITEID or $linked_course_id == $course->id or !empty($existing)) {
                 // don't add the same course twice
                 redirect(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
             }
