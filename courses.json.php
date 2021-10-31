@@ -13,15 +13,19 @@ $search_field = optional_param('field', METAGROUP_FIELD_NAME, PARAM_INT);
 
 if ($search_field === METAGROUP_FIELD_ID) {
     $search_value = required_param('value', PARAM_INT);
-    $course       = get_course($search_value);
-    $courses      = [
-        [
-            'id'        => $course->id,
-            'fullname'  => $course->fullname,
-            'shortname' => $course->shortname,
-            'visible'   => $course->visible,
-        ],
-    ];
+    try {
+        $course       = get_course($search_value);
+        $courses      = [
+            [
+                'id'        => $course->id,
+                'fullname'  => $course->fullname,
+                'shortname' => $course->shortname,
+                'visible'   => $course->visible,
+            ],
+        ];
+    } catch (Exception $e) {
+        $courses = [];
+    }
 } else {
     $search_value = optional_param('value', '', PARAM_TEXT);
     $courses      = array_slice(
