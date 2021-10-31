@@ -14,8 +14,8 @@ $search_field = optional_param('field', METAGROUP_FIELD_NAME, PARAM_INT);
 if ($search_field === METAGROUP_FIELD_ID) {
     $search_value = required_param('value', PARAM_INT);
     try {
-        $course       = get_course($search_value);
-        $courses      = [
+        $course  = get_course($search_value);
+        $courses = [
             [
                 'id'        => $course->id,
                 'fullname'  => $course->fullname,
@@ -23,7 +23,7 @@ if ($search_field === METAGROUP_FIELD_ID) {
                 'visible'   => $course->visible,
             ],
         ];
-    } catch (Exception $e) {
+    } catch (dml_missing_record_exception $e) {
         $courses = [];
     }
 } else {
