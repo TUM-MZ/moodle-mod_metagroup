@@ -41,6 +41,10 @@ $string['linkedgroup'] = 'Link group';
 $string['remarks'] = 'Remarks';
 $string['course'] = 'Course';
 
+$string['form:field_id']   = 'Course ID';
+$string['form:field_name'] = 'Course name';
+$string['form:group']      = 'Course name';
+
 $string['format_error'] = 'Format error. 3 items per row';
 $string['course_error'] = 'Invalid course';
 $string['link_course_error'] = 'Invalid link course';
