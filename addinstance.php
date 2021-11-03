@@ -32,7 +32,7 @@ $id = required_param('id', PARAM_INT);
 
 $course             = get_course($id);
 $to_enrol_instances = new moodle_url('/enrol/instances.php', ['id' => $id]);
-$context = context_course::instance($course->id, MUST_EXIST);
+$context            = context_course::instance($course->id, MUST_EXIST);
 $PAGE->set_url('/enrol/metagroup/addinstance.php', ['id' => $course->id]);
 $PAGE->set_pagelayout('admin');
 $PAGE->requires->js_call_amd('enrol_metagroup/metalink', 'initialize');
@@ -58,7 +58,7 @@ if ($mform->is_cancelled()) {
             $course,
             [
                 'customint1' => $data->link,
-                'customint2' => $data->groups
+                'customint2' => $data->groups,
             ]
         );
         redirect($to_enrol_instances);

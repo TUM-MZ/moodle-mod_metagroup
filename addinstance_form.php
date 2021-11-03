@@ -38,8 +38,8 @@ class enrol_metagroup_addinstance_form extends moodleform
 
         $mform->addGroup(
             [
-                $mform->createElement('radio', 'field', '', get_string('form:field_name'), 0, $attributes),
-                $mform->createElement('radio', 'field', '', get_string('form:field_id'), 1, $attributes),
+                $mform->createElement('radio', 'field', '', get_string('form:field_name', 'enrol_metagroup'), 0),
+                $mform->createElement('radio', 'field', '', get_string('form:field_id', 'enrol_metagroup'), 1),
             ],
             'field_types',
             '',
@@ -48,23 +48,28 @@ class enrol_metagroup_addinstance_form extends moodleform
         );
         $mform->setDefault('field', 1);
 
+        $mform->addElement('text', 'search', get_string('form:searchterm', 'enrol_metagroup'), [ 'autofocus' => 'autofocus' ]);
+        $mform->setType('search', PARAM_TEXT);
+
         $mform->addElement('select', 'link', get_string('linkedcourse', 'enrol_metagroup'), ['loading'], 'disabled');
         $mform->setType('link', PARAM_INT);
-        $mform->addRule('link', null, 'required', null, 'server');
+        $mform->addRule('link', get_string('error'), 'required', null, false);
 
-        $mform->addElement('select', 'groups', get_string('form:group'), ['N/A'], 'disabled');
+        $mform->addElement('select', 'groups', get_string('form:group', 'enrol_metagroup'), ['N/A'], 'disabled');
         $mform->setType('groups', PARAM_INT);
-        $mform->addRule('groups', null, 'required', null, 'server');
+        $mform->addRule('groups', get_string('error'), 'required', null, false);
 
         $mform->addElement('hidden', 'id', null);
         $mform->setType('id', PARAM_INT);
-        $mform->addRule('id', null, 'required', null, 'server');
+        $mform->addRule('id', get_string('error'), 'required', null, false);
 
         $this->add_action_buttons(true, get_string('addinstance', 'enrol'));
     }
 
 
     public function validation($data, $files) {
+        global $DB;
+
         $errors = parent::validation($data, $files);
         $course = get_course($data['link']);
 
