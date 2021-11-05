@@ -1,209 +1,613 @@
-define([], function () {
-  'use strict'
-  const module = {
-    initialize: function () {
-      document.addEventListener('DOMContentLoaded', function () {
-        document
-          .querySelector('#selectionform #course_filter')
-          .addEventListener('keyup', module.debounce(function (keyupEvent) {
-            if (keyupEvent.code === 13) {
-            ev.preventDefault()
-            return
-          }
-            module.loadCourses)
-        document
-          .querySelector('#selectionform #id_link')
-          .addEventListener('change', module.loadGroups)
-      })
 
-      $(function () {
-        $('#id_link').on('change', function () {
-          module.loadGroups(this)
-        })
-        $('#course_filter').keyup(module.debounce(function (ev) {
-          const filter_expr = $('#course_filter').val().trim()
-          if (ev.code === 13) {
-            ev.preventDefault()
-            return
-          }
-          let atLeastOneSelected
-          atLeastOneSelected = false
-          $('#id_link').find('option').each(function (index, link) {
-            const escaped_filter_expr = filter_expr
-              .replace('(', '\\(')
-              .replace(')', '\\)')
-              .replace('[', '\\[')
-              .replace(']', '\\]')
-              .replace('.', '\\.')
-            const regex = new RegExp('.*' + escaped_filter_expr + '.*', 'i')
-            if (regex.test($(link).text())) {
-              $(link).css('display', 'inline')
-              if (!atLeastOneSelected) {
-                $('#id_link')
-                  .val($(link).val())
-                  .change()
-                atLeastOneSelected = true
-              }
-            } else {
-              $(link).css('display', 'none')
-            }
-          })
-        }, 250))
-      })
-    },
-    loadGroups: function (elem) {
-      $.ajax({
-        url: M.cfg.wwwroot + '/enrol/metagroup/groups.json.php',
-        type: 'POST',
-        data: {
-          courseid: $(elem).val(),
-          sesskey: $('form :input[name=sesskey]').val()
-        },
-        success: function (res) {
-          const groups = JSON.parse(res)
-          if (Object.keys(groups).length > 0) {
-            // $('#id_courseg').prop( "disabled", false );
-            $('#id_groups') // initialize select element
-              .find('option')
-              .remove()
-              .end()
-              .append('<option value="0">All</option>')
-              .val('0')
-          } else {
-            // $('#id_courseg').prop( "disabled", true );
-            $('#id_groups') // initialize select element
-              .find('option')
-              .remove()
-          }
-          Object.keys(groups).map(function (key) {
-            $('#id_groups')
-              .append($('<option></option>')
-                .attr('value', groups[key].id)
-                .text(groups[key].name))
-          })
-        }
-      })
-    },
-    debounce: function (func, wait, options) {
-      // shameslessly "stolen" from lodash
+(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
+define(['exports'], (function (exports) { 'use strict';
 
-      function isObject (value) {
-        // Avoid a V8 JIT bug in Chrome 19-20.
-        // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
-        const type = typeof value
-        return !!value && (type === 'object' || type === 'function')
-      }
+	var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-      let args
-      let maxTimeoutId
-      let result
-      let stamp
-      let thisArg
-      let timeoutId
-      let leading
-      let trailingCall
-      let lastCalled = 0
-      let maxWait = false
-      let trailing = true
+	/**
+	 * Checks if `value` is the
+	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(_.noop);
+	 * // => true
+	 *
+	 * _.isObject(null);
+	 * // => false
+	 */
 
-      if (typeof func !== 'function') {
-        throw new TypeError('First argument has to be a function')
-      }
+	function isObject$2(value) {
+	  var type = typeof value;
+	  return value != null && (type == 'object' || type == 'function');
+	}
 
-      wait = wait < 0 ? 0 : (+wait || 0)
-      if (options === true) {
-        leading = true
-        trailing = false
-      } else if (isObject(options)) {
-        leading = !!options.leading
-        maxWait = 'maxWait' in options && Math.max(+options.maxWait || 0, wait)
-        trailing = 'trailing' in options ? !!options.trailing : trailing
-      }
-      const now = Date.now || function () {
-        return new Date().getTime()
-      }
+	var isObject_1 = isObject$2;
 
-      function cancel () {
-        if (timeoutId) {
-          clearTimeout(timeoutId)
-        }
-        if (maxTimeoutId) {
-          clearTimeout(maxTimeoutId)
-        }
-        lastCalled = 0
-        maxTimeoutId = timeoutId = trailingCall = undefined
-      }
+	/** Detect free variable `global` from Node.js. */
 
-      function complete (isCalled, id) {
-        if (id) {
-          clearTimeout(id)
-        }
-        maxTimeoutId = timeoutId = trailingCall = undefined
-        if (isCalled) {
-          lastCalled = now()
-          result = func.apply(thisArg, args)
-          if (!timeoutId && !maxTimeoutId) {
-            args = thisArg = undefined
-          }
-        }
-      }
+	var freeGlobal$1 = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
-      function delayed () {
-        const remaining = wait - (now() - stamp)
-        if (remaining <= 0 || remaining > wait) {
-          complete(trailingCall, maxTimeoutId)
-        } else {
-          timeoutId = setTimeout(delayed, remaining)
-        }
-      }
+	var _freeGlobal = freeGlobal$1;
 
-      function maxDelayed () {
-        complete(trailing, timeoutId)
-      }
+	var freeGlobal = _freeGlobal;
 
-      function debounced () {
-        args = arguments
-        stamp = now()
-        thisArg = this // jshint ignore:line
-        trailingCall = trailing && (timeoutId || !leading)
-        let isCalled, leadingCall
+	/** Detect free variable `self`. */
+	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
 
-        if (maxWait === false) {
-          leadingCall = leading && !timeoutId
-        } else {
-          if (!maxTimeoutId && !leading) {
-            lastCalled = stamp
-          }
-          const remaining = maxWait - (stamp - lastCalled)
-          isCalled = remaining <= 0 || remaining > maxWait
+	/** Used as a reference to the global object. */
+	var root$2 = freeGlobal || freeSelf || Function('return this')();
 
-          if (isCalled) {
-            if (maxTimeoutId) {
-              maxTimeoutId = clearTimeout(maxTimeoutId)
-            }
-            lastCalled = stamp
-            result = func.apply(thisArg, args)
-          } else if (!maxTimeoutId) {
-            maxTimeoutId = setTimeout(maxDelayed, remaining)
-          }
-        }
-        if (isCalled && timeoutId) {
-          timeoutId = clearTimeout(timeoutId)
-        } else if (!timeoutId && wait !== maxWait) {
-          timeoutId = setTimeout(delayed, wait)
-        }
-        if (leadingCall) {
-          isCalled = true
-          result = func.apply(thisArg, args)
-        }
-        if (isCalled && !timeoutId && !maxTimeoutId) {
-          args = thisArg = undefined
-        }
-        return result
-      }
-      debounced.cancel = cancel
-      return debounced
-    }
-  }
-  return module
-})
+	var _root = root$2;
+
+	var root$1 = _root;
+
+	/**
+	 * Gets the timestamp of the number of milliseconds that have elapsed since
+	 * the Unix epoch (1 January 1970 00:00:00 UTC).
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 2.4.0
+	 * @category Date
+	 * @returns {number} Returns the timestamp.
+	 * @example
+	 *
+	 * _.defer(function(stamp) {
+	 *   console.log(_.now() - stamp);
+	 * }, _.now());
+	 * // => Logs the number of milliseconds it took for the deferred invocation.
+	 */
+	var now$1 = function() {
+	  return root$1.Date.now();
+	};
+
+	var now_1 = now$1;
+
+	/** Used to match a single whitespace character. */
+
+	var reWhitespace = /\s/;
+
+	/**
+	 * Used by `_.trim` and `_.trimEnd` to get the index of the last non-whitespace
+	 * character of `string`.
+	 *
+	 * @private
+	 * @param {string} string The string to inspect.
+	 * @returns {number} Returns the index of the last non-whitespace character.
+	 */
+	function trimmedEndIndex$1(string) {
+	  var index = string.length;
+
+	  while (index-- && reWhitespace.test(string.charAt(index))) {}
+	  return index;
+	}
+
+	var _trimmedEndIndex = trimmedEndIndex$1;
+
+	var trimmedEndIndex = _trimmedEndIndex;
+
+	/** Used to match leading whitespace. */
+	var reTrimStart = /^\s+/;
+
+	/**
+	 * The base implementation of `_.trim`.
+	 *
+	 * @private
+	 * @param {string} string The string to trim.
+	 * @returns {string} Returns the trimmed string.
+	 */
+	function baseTrim$1(string) {
+	  return string
+	    ? string.slice(0, trimmedEndIndex(string) + 1).replace(reTrimStart, '')
+	    : string;
+	}
+
+	var _baseTrim = baseTrim$1;
+
+	var root = _root;
+
+	/** Built-in value references. */
+	var Symbol$2 = root.Symbol;
+
+	var _Symbol = Symbol$2;
+
+	var Symbol$1 = _Symbol;
+
+	/** Used for built-in method references. */
+	var objectProto$1 = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto$1.hasOwnProperty;
+
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var nativeObjectToString$1 = objectProto$1.toString;
+
+	/** Built-in value references. */
+	var symToStringTag$1 = Symbol$1 ? Symbol$1.toStringTag : undefined;
+
+	/**
+	 * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+	 *
+	 * @private
+	 * @param {*} value The value to query.
+	 * @returns {string} Returns the raw `toStringTag`.
+	 */
+	function getRawTag$1(value) {
+	  var isOwn = hasOwnProperty.call(value, symToStringTag$1),
+	      tag = value[symToStringTag$1];
+
+	  try {
+	    value[symToStringTag$1] = undefined;
+	    var unmasked = true;
+	  } catch (e) {}
+
+	  var result = nativeObjectToString$1.call(value);
+	  if (unmasked) {
+	    if (isOwn) {
+	      value[symToStringTag$1] = tag;
+	    } else {
+	      delete value[symToStringTag$1];
+	    }
+	  }
+	  return result;
+	}
+
+	var _getRawTag = getRawTag$1;
+
+	/** Used for built-in method references. */
+
+	var objectProto = Object.prototype;
+
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var nativeObjectToString = objectProto.toString;
+
+	/**
+	 * Converts `value` to a string using `Object.prototype.toString`.
+	 *
+	 * @private
+	 * @param {*} value The value to convert.
+	 * @returns {string} Returns the converted string.
+	 */
+	function objectToString$1(value) {
+	  return nativeObjectToString.call(value);
+	}
+
+	var _objectToString = objectToString$1;
+
+	var Symbol = _Symbol,
+	    getRawTag = _getRawTag,
+	    objectToString = _objectToString;
+
+	/** `Object#toString` result references. */
+	var nullTag = '[object Null]',
+	    undefinedTag = '[object Undefined]';
+
+	/** Built-in value references. */
+	var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+
+	/**
+	 * The base implementation of `getTag` without fallbacks for buggy environments.
+	 *
+	 * @private
+	 * @param {*} value The value to query.
+	 * @returns {string} Returns the `toStringTag`.
+	 */
+	function baseGetTag$1(value) {
+	  if (value == null) {
+	    return value === undefined ? undefinedTag : nullTag;
+	  }
+	  return (symToStringTag && symToStringTag in Object(value))
+	    ? getRawTag(value)
+	    : objectToString(value);
+	}
+
+	var _baseGetTag = baseGetTag$1;
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+
+	function isObjectLike$1(value) {
+	  return value != null && typeof value == 'object';
+	}
+
+	var isObjectLike_1 = isObjectLike$1;
+
+	var baseGetTag = _baseGetTag,
+	    isObjectLike = isObjectLike_1;
+
+	/** `Object#toString` result references. */
+	var symbolTag = '[object Symbol]';
+
+	/**
+	 * Checks if `value` is classified as a `Symbol` primitive or object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+	 * @example
+	 *
+	 * _.isSymbol(Symbol.iterator);
+	 * // => true
+	 *
+	 * _.isSymbol('abc');
+	 * // => false
+	 */
+	function isSymbol$1(value) {
+	  return typeof value == 'symbol' ||
+	    (isObjectLike(value) && baseGetTag(value) == symbolTag);
+	}
+
+	var isSymbol_1 = isSymbol$1;
+
+	var baseTrim = _baseTrim,
+	    isObject$1 = isObject_1,
+	    isSymbol = isSymbol_1;
+
+	/** Used as references for various `Number` constants. */
+	var NAN = 0 / 0;
+
+	/** Used to detect bad signed hexadecimal string values. */
+	var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+	/** Used to detect binary string values. */
+	var reIsBinary = /^0b[01]+$/i;
+
+	/** Used to detect octal string values. */
+	var reIsOctal = /^0o[0-7]+$/i;
+
+	/** Built-in method references without a dependency on `root`. */
+	var freeParseInt = parseInt;
+
+	/**
+	 * Converts `value` to a number.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to process.
+	 * @returns {number} Returns the number.
+	 * @example
+	 *
+	 * _.toNumber(3.2);
+	 * // => 3.2
+	 *
+	 * _.toNumber(Number.MIN_VALUE);
+	 * // => 5e-324
+	 *
+	 * _.toNumber(Infinity);
+	 * // => Infinity
+	 *
+	 * _.toNumber('3.2');
+	 * // => 3.2
+	 */
+	function toNumber$1(value) {
+	  if (typeof value == 'number') {
+	    return value;
+	  }
+	  if (isSymbol(value)) {
+	    return NAN;
+	  }
+	  if (isObject$1(value)) {
+	    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+	    value = isObject$1(other) ? (other + '') : other;
+	  }
+	  if (typeof value != 'string') {
+	    return value === 0 ? value : +value;
+	  }
+	  value = baseTrim(value);
+	  var isBinary = reIsBinary.test(value);
+	  return (isBinary || reIsOctal.test(value))
+	    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+	    : (reIsBadHex.test(value) ? NAN : +value);
+	}
+
+	var toNumber_1 = toNumber$1;
+
+	var isObject = isObject_1,
+	    now = now_1,
+	    toNumber = toNumber_1;
+
+	/** Error message constants. */
+	var FUNC_ERROR_TEXT = 'Expected a function';
+
+	/* Built-in method references for those with the same name as other `lodash` methods. */
+	var nativeMax = Math.max,
+	    nativeMin = Math.min;
+
+	/**
+	 * Creates a debounced function that delays invoking `func` until after `wait`
+	 * milliseconds have elapsed since the last time the debounced function was
+	 * invoked. The debounced function comes with a `cancel` method to cancel
+	 * delayed `func` invocations and a `flush` method to immediately invoke them.
+	 * Provide `options` to indicate whether `func` should be invoked on the
+	 * leading and/or trailing edge of the `wait` timeout. The `func` is invoked
+	 * with the last arguments provided to the debounced function. Subsequent
+	 * calls to the debounced function return the result of the last `func`
+	 * invocation.
+	 *
+	 * **Note:** If `leading` and `trailing` options are `true`, `func` is
+	 * invoked on the trailing edge of the timeout only if the debounced function
+	 * is invoked more than once during the `wait` timeout.
+	 *
+	 * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+	 * until to the next tick, similar to `setTimeout` with a timeout of `0`.
+	 *
+	 * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+	 * for details over the differences between `_.debounce` and `_.throttle`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Function
+	 * @param {Function} func The function to debounce.
+	 * @param {number} [wait=0] The number of milliseconds to delay.
+	 * @param {Object} [options={}] The options object.
+	 * @param {boolean} [options.leading=false]
+	 *  Specify invoking on the leading edge of the timeout.
+	 * @param {number} [options.maxWait]
+	 *  The maximum time `func` is allowed to be delayed before it's invoked.
+	 * @param {boolean} [options.trailing=true]
+	 *  Specify invoking on the trailing edge of the timeout.
+	 * @returns {Function} Returns the new debounced function.
+	 * @example
+	 *
+	 * // Avoid costly calculations while the window size is in flux.
+	 * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
+	 *
+	 * // Invoke `sendMail` when clicked, debouncing subsequent calls.
+	 * jQuery(element).on('click', _.debounce(sendMail, 300, {
+	 *   'leading': true,
+	 *   'trailing': false
+	 * }));
+	 *
+	 * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
+	 * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
+	 * var source = new EventSource('/stream');
+	 * jQuery(source).on('message', debounced);
+	 *
+	 * // Cancel the trailing debounced invocation.
+	 * jQuery(window).on('popstate', debounced.cancel);
+	 */
+	function debounce(func, wait, options) {
+	  var lastArgs,
+	      lastThis,
+	      maxWait,
+	      result,
+	      timerId,
+	      lastCallTime,
+	      lastInvokeTime = 0,
+	      leading = false,
+	      maxing = false,
+	      trailing = true;
+
+	  if (typeof func != 'function') {
+	    throw new TypeError(FUNC_ERROR_TEXT);
+	  }
+	  wait = toNumber(wait) || 0;
+	  if (isObject(options)) {
+	    leading = !!options.leading;
+	    maxing = 'maxWait' in options;
+	    maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
+	    trailing = 'trailing' in options ? !!options.trailing : trailing;
+	  }
+
+	  function invokeFunc(time) {
+	    var args = lastArgs,
+	        thisArg = lastThis;
+
+	    lastArgs = lastThis = undefined;
+	    lastInvokeTime = time;
+	    result = func.apply(thisArg, args);
+	    return result;
+	  }
+
+	  function leadingEdge(time) {
+	    // Reset any `maxWait` timer.
+	    lastInvokeTime = time;
+	    // Start the timer for the trailing edge.
+	    timerId = setTimeout(timerExpired, wait);
+	    // Invoke the leading edge.
+	    return leading ? invokeFunc(time) : result;
+	  }
+
+	  function remainingWait(time) {
+	    var timeSinceLastCall = time - lastCallTime,
+	        timeSinceLastInvoke = time - lastInvokeTime,
+	        timeWaiting = wait - timeSinceLastCall;
+
+	    return maxing
+	      ? nativeMin(timeWaiting, maxWait - timeSinceLastInvoke)
+	      : timeWaiting;
+	  }
+
+	  function shouldInvoke(time) {
+	    var timeSinceLastCall = time - lastCallTime,
+	        timeSinceLastInvoke = time - lastInvokeTime;
+
+	    // Either this is the first call, activity has stopped and we're at the
+	    // trailing edge, the system time has gone backwards and we're treating
+	    // it as the trailing edge, or we've hit the `maxWait` limit.
+	    return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
+	      (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
+	  }
+
+	  function timerExpired() {
+	    var time = now();
+	    if (shouldInvoke(time)) {
+	      return trailingEdge(time);
+	    }
+	    // Restart the timer.
+	    timerId = setTimeout(timerExpired, remainingWait(time));
+	  }
+
+	  function trailingEdge(time) {
+	    timerId = undefined;
+
+	    // Only invoke if we have `lastArgs` which means `func` has been
+	    // debounced at least once.
+	    if (trailing && lastArgs) {
+	      return invokeFunc(time);
+	    }
+	    lastArgs = lastThis = undefined;
+	    return result;
+	  }
+
+	  function cancel() {
+	    if (timerId !== undefined) {
+	      clearTimeout(timerId);
+	    }
+	    lastInvokeTime = 0;
+	    lastArgs = lastCallTime = lastThis = timerId = undefined;
+	  }
+
+	  function flush() {
+	    return timerId === undefined ? result : trailingEdge(now());
+	  }
+
+	  function debounced() {
+	    var time = now(),
+	        isInvoking = shouldInvoke(time);
+
+	    lastArgs = arguments;
+	    lastThis = this;
+	    lastCallTime = time;
+
+	    if (isInvoking) {
+	      if (timerId === undefined) {
+	        return leadingEdge(lastCallTime);
+	      }
+	      if (maxing) {
+	        // Handle invocations in a tight loop.
+	        clearTimeout(timerId);
+	        timerId = setTimeout(timerExpired, wait);
+	        return invokeFunc(lastCallTime);
+	      }
+	    }
+	    if (timerId === undefined) {
+	      timerId = setTimeout(timerExpired, wait);
+	    }
+	    return result;
+	  }
+	  debounced.cancel = cancel;
+	  debounced.flush = flush;
+	  return debounced;
+	}
+
+	var debounce_1 = debounce;
+
+	const init = function () {
+	  console.log('Hallo');
+	  document
+	    .querySelectorAll('id_error_field_0, id_error_field_1')
+	    .forEach(e => e.addEventListener('change', debounce_1(loadCourses, 250)));
+	  document
+	    .querySelector('#id_search')
+	    .addEventListener('keyup', debounce_1(loadCourses, 250));
+	  document
+	    .querySelector('#id_link')
+	    .addEventListener('change', loadGroups);
+	};
+
+	async function loadCourses (ev) {
+	  if (ev.code === 13) {
+	    ev.preventDefault();
+	    return
+	  }
+	  const filterExpr = ev.target.value.trim();
+	  if (filterExpr.length < 3) {
+	    return
+	  }
+	  const options = await window.fetch('/enrol/metagroup/courses.json.php', {
+	    method: 'POST',
+	    body: new window.FormData(document.querySelector('form'))
+	  }).then(r => r.json());
+	  const link = document.querySelector('#id_link');
+	  link.innerHTML = options
+	    .map(o => `<option value="${o.id}">${o.name} [${o.idnumber}]</option>`)
+	    .join('');
+	  link.removeAttribute('disabled');
+	}
+
+	function loadGroups (elem) {
+	  window.fetch('/enrol/metagroup/groups.json.php', {
+	    body: {
+
+	      courseid: document.querySelector(elem).val()
+	    }
+	  }).then(groups => {
+	    if (Object.keys(groups).length > 0) {
+	      // document.querySelector('#id_courseg').prop( "disabled", false );
+	      document.querySelector('#id_groups') // initialize select element
+	        .find('option')
+	        .remove()
+	        .end()
+	        .append('<option value="0">All</option>')
+	        .val('0');
+	    } else {
+	      // document.querySelector('#id_courseg').prop( "disabled", true );
+	      document.querySelector('#id_groups') // initialize select element
+	        .find('option')
+	        .remove();
+	    }
+	    Object.keys(groups).map(function (key) {
+	      document.querySelector('#id_groups')
+	        .append(document.querySelector('<option></option>')
+	          .attr('value', groups[key].id)
+	          .text(groups[key].name));
+	    });
+	  });
+	}
+
+	exports.init = init;
+
+	Object.defineProperty(exports, '__esModule', { value: true });
+
+}));

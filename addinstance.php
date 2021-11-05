@@ -35,7 +35,7 @@ $to_enrol_instances = new moodle_url('/enrol/instances.php', ['id' => $id]);
 $context            = context_course::instance($course->id, MUST_EXIST);
 $PAGE->set_url('/enrol/metagroup/addinstance.php', ['id' => $course->id]);
 $PAGE->set_pagelayout('admin');
-$PAGE->requires->js_call_amd('enrol_metagroup/metalink', 'initialize');
+$PAGE->requires->js_call_amd('enrol_metagroup/metalink', 'init');
 
 navigation_node::override_active_url($to_enrol_instances);
 

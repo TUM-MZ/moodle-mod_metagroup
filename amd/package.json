@@ -1,0 +1,28 @@
+{
+  "name": "@moodle/plugin-enroll-metagroup",
+  "version": "2.0.0",
+  "main": "metalink.js",
+  "private": true,
+  "author": {
+    "name": "Berengar W. Lehr",
+    "email": "Berengar.Lehr@uni-jena.de",
+    "url": "https://twitter.com/Hoffmann",
+    "affiliation": "Friedrich-Schiller-University Jena"
+  },
+  "copyright": "© 2021 Friedrich-Schiller-University Jena",
+  "license": "CC-BY-NC-SA-4.0",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "rollup": "^2.3.4",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-uglify": "^6.0.4"
+  }
+}

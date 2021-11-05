@@ -31,36 +31,34 @@ const METAGROUP_FIELD_NAME  = 0;
 const METAGROUP_FIELD_ID    = 1;
 const METAGROUP_MAX_COURSES = 20;
 
-$search_field = optional_param('field', METAGROUP_FIELD_NAME, PARAM_INT);
+global $DB;
 
-if ($search_field === METAGROUP_FIELD_ID) {
-    $search_value = required_param('value', PARAM_INT);
-    try {
-        $course  = get_course($search_value);
-        $courses = [
-            [
-                'id'        => $course->id,
-                'fullname'  => $course->fullname,
-                'shortname' => $course->shortname,
-                'visible'   => $course->visible,
-            ],
-        ];
-    } catch (dml_missing_record_exception $e) {
-        $courses = [];
-    }
+$searchFieldId = optional_param('field', METAGROUP_FIELD_NAME, PARAM_INT);
+
+if ($searchFieldId === METAGROUP_FIELD_ID) {
+    $searchField = 'idnumber';
+    $searchValue = required_param('search', PARAM_INT);
 } else {
-    $search_value = optional_param('value', '', PARAM_TEXT);
-    $courses      = array_slice(
-        array_filter(
-            get_courses('all', 'c.sortorder ASC', 'c.id, c.fullname, c.shortname, c.visible'),
-            function ($course) use ($search_value) {
-                return (strlen($search_value) === 0) or (strpos($course->fullname, $search_value) !== false) or (strpos($course->shortname, $search_value) !== false);
-            }
-        ),
-        0,
-        METAGROUP_MAX_COURSES
-    );
+    $searchField = 'fullname';
+    $searchValue = optional_param('search', '', PARAM_TEXT);
 }
 
-echo json_encode($courses);
+$courses = array_map(
+    function ($course) {
+        return [
+            'id'       => $course->id,
+            'idnumber' => $course->idnumber,
+            'name'     => $course->fullname,
+            'visible'  => $course->visible,
+        ];
+    },
+    $DB->get_records_sql(
+        "SELECT id, idnumber, fullname, visible FROM {course} WHERE $searchField LIKE '%${searchValue}%'",
+        null,
+        0,
+        METAGROUP_MAX_COURSES
+    )
+);
+
+echo json_encode(array_values($courses));
 die();
