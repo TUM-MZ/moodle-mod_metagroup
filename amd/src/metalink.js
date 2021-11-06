@@ -543,8 +543,10 @@ define(['exports'], (function (exports) { 'use strict';
 
 	var debounce_1 = debounce;
 
-	const init = function () {
-	  console.log('Hallo');
+	let lang = {};
+
+	const init = function (_lang) {
+	  lang = _lang;
 	  document
 	    .querySelectorAll('id_error_field_0, id_error_field_1')
 	    .forEach(e => e.addEventListener('change', debounce_1(loadCourses, 250)));
@@ -556,12 +558,12 @@ define(['exports'], (function (exports) { 'use strict';
 	    .addEventListener('change', loadGroups);
 	};
 
-	async function loadCourses (ev) {
-	  if (ev.code === 13) {
-	    ev.preventDefault();
+	async function loadCourses (keyupEvent) {
+	  if (keyupEvent.code === 13) {
+	    keyupEvent.preventDefault();
 	    return
 	  }
-	  const filterExpr = ev.target.value.trim();
+	  const filterExpr = keyupEvent.target.value.trim();
 	  if (filterExpr.length < 3) {
 	    return
 	  }
@@ -570,40 +572,48 @@ define(['exports'], (function (exports) { 'use strict';
 	    body: new window.FormData(document.querySelector('form'))
 	  }).then(r => r.json());
 	  const link = document.querySelector('#id_link');
+	  if (options.length === 0) {
+	    link.setAttribute('disabled', 'disabled');
+	    link.innerHTML = `<option>${lang.no_courses}</option>`;
+	    window.setTimeout(() => {
+	      link.value = '';
+	      link.dispatchEvent(new Event("change"));
+	    });
+	    return
+	  }
 	  link.innerHTML = options
 	    .map(o => `<option value="${o.id}">${o.name} [${o.idnumber}]</option>`)
 	    .join('');
 	  link.removeAttribute('disabled');
+	  window.setTimeout(() => {
+	    link.value = options[0].id;
+	    link.dispatchEvent(new Event('change'));
+	  });
 	}
 
-	function loadGroups (elem) {
-	  window.fetch('/enrol/metagroup/groups.json.php', {
-	    body: {
-
-	      courseid: document.querySelector(elem).val()
-	    }
-	  }).then(groups => {
-	    if (Object.keys(groups).length > 0) {
-	      // document.querySelector('#id_courseg').prop( "disabled", false );
-	      document.querySelector('#id_groups') // initialize select element
-	        .find('option')
-	        .remove()
-	        .end()
-	        .append('<option value="0">All</option>')
-	        .val('0');
-	    } else {
-	      // document.querySelector('#id_courseg').prop( "disabled", true );
-	      document.querySelector('#id_groups') // initialize select element
-	        .find('option')
-	        .remove();
-	    }
-	    Object.keys(groups).map(function (key) {
-	      document.querySelector('#id_groups')
-	        .append(document.querySelector('<option></option>')
-	          .attr('value', groups[key].id)
-	          .text(groups[key].name));
-	    });
-	  });
+	async function loadGroups (changeEvent) {
+	  const courseid = changeEvent.target.value;
+	  const group = document.querySelector('#id_groups');
+	  if (courseid === '') {
+	    group.setAttribute("disabled", "disabled");
+	    group.innerHTML = '';
+	    return;
+	  }
+	  const groups = await window
+	    .fetch('/enrol/metagroup/groups.json.php', {
+	      method: 'POST',
+	      body: new window.URLSearchParams({ courseid }),
+	    })
+	    .then((r) => r.json());
+	  if (groups.length === 0) {
+	    group.setAttribute('disabled', 'disabled');
+	    group.innerHTML = `<option>${lang.no_groups}</option>`;
+	    return
+	  }
+	  group.innerHTML = groups
+	    .map((g) => `<option value="${g.id}">${g.name}</option>`)
+	    .join('');
+	  group.removeAttribute('disabled');
 	}
 
 	exports.init = init;

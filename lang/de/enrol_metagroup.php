@@ -51,6 +51,9 @@ $string['form:field_name'] = 'Kurs Name';
 $string['form:searchterm'] = 'Kurssuche';
 $string['form:group']      = 'Gruppe';
 
+$string['select:no_courses'] = 'Keinen Kurs gefunden';
+$string['select:no_groups']  = 'Keine Gruppen gefunden';
+
 $string['format_error']      = 'Formatfehler, drei Felder pro Zeile';
 $string['course_error']      = 'Ungültiger Kurs';
 $string['link_course_error'] = 'Ungültiger Kurs zum verbinden';

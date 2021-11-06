@@ -49,6 +49,9 @@ $string['form:field_name'] = 'Course name';
 $string['form:searchterm'] = 'Course search';
 $string['form:group']      = 'Course group';
 
+$string['select:no_courses'] = 'No course found';
+$string['select:no_groups']  = 'No groups found';
+
 $string['format_error']      = 'Format error. 3 items per row';
 $string['course_error']      = 'Invalid course';
 $string['link_course_error'] = 'Invalid link course';

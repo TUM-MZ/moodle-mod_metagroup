@@ -51,11 +51,11 @@ class enrol_metagroup_addinstance_form extends moodleform
         $mform->addElement('text', 'search', get_string('form:searchterm', 'enrol_metagroup'), [ 'autofocus' => 'autofocus' ]);
         $mform->setType('search', PARAM_TEXT);
 
-        $mform->addElement('select', 'link', get_string('linkedcourse', 'enrol_metagroup'), ['loading'], 'disabled');
+        $mform->addElement('select', 'link', get_string('linkedcourse', 'enrol_metagroup'), [''], 'disabled size=10');
         $mform->setType('link', PARAM_INT);
         $mform->addRule('link', get_string('error'), 'required', null, false);
 
-        $mform->addElement('select', 'groups', get_string('form:group', 'enrol_metagroup'), ['N/A'], 'disabled');
+        $mform->addElement('select', 'groups', get_string('form:group', 'enrol_metagroup'), [''], 'disabled size=5');
         $mform->setType('groups', PARAM_INT);
         $mform->addRule('groups', get_string('error'), 'required', null, false);
 
