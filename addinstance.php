@@ -28,19 +28,23 @@ require_once $CFG->dirroot . '/enrol/metagroup/addinstance_form.php';
 require_once $CFG->dirroot . '/enrol/metagroup/locallib.php';
 require_once $CFG->libdir . '/formslib.php';
 
-$id = required_param('id', PARAM_INT);
 
-$course             = get_course($id);
-$to_enrol_instances = new moodle_url('/enrol/instances.php', ['id' => $id]);
+
+$course             = get_course(required_param('id', PARAM_INT));
+$to_enrol_instances = new moodle_url('/enrol/instances.php', ['id' => $course->id]);
 $context            = context_course::instance($course->id, MUST_EXIST);
 $PAGE->set_url('/enrol/metagroup/addinstance.php', ['id' => $course->id]);
 $PAGE->set_pagelayout('admin');
-$PAGE->requires->js_call_amd('enrol_metagroup/metalink', 'init', [
-    'lang' => [
-        'no_courses' => get_string('select:no_courses', 'enrol_metagroup'),
-        'no_groups' => get_string('select:no_groups', 'enrol_metagroup'),
+$PAGE->requires->js_call_amd(
+    'enrol_metagroup/metalink',
+    'init',
+    [
+        'lang' => [
+            'no_courses' => get_string('select:no_courses', 'enrol_metagroup'),
+            'no_groups'  => get_string('select:no_groups', 'enrol_metagroup'),
+        ],
     ]
-]);
+);
 
 navigation_node::override_active_url($to_enrol_instances);
 
@@ -52,18 +56,18 @@ if (!$enrol->get_newinstance_link($course->id)) {
     redirect($to_enrol_instances);
 }
 
-$mform = new enrol_metagroup_addinstance_form(null, $course);
+$mform = new enrol_metagroup_addinstance_form(null, ['id' => $course->id]);
 
 if ($mform->is_cancelled()) {
     redirect($to_enrol_instances);
 } else {
     $data = $mform->get_data();
-    if ($data && ($data->groups > 0)) {
+    if ($data && ($data->group > 0)) {
         $eid = $enrol->add_instance(
             $course,
             [
                 'customint1' => $data->link,
-                'customint2' => $data->groups,
+                'customint2' => $data->group,
             ]
         );
         redirect($to_enrol_instances);

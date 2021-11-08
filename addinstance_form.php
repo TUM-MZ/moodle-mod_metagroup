@@ -51,17 +51,21 @@ class enrol_metagroup_addinstance_form extends moodleform
         $mform->addElement('text', 'search', get_string('form:searchterm', 'enrol_metagroup'), [ 'autofocus' => 'autofocus' ]);
         $mform->setType('search', PARAM_TEXT);
 
-        $mform->addElement('select', 'link', get_string('linkedcourse', 'enrol_metagroup'), [''], 'disabled size=10');
+        // $mform->addElement('select', 'link', get_string('linkedcourse', 'enrol_metagroup'), [''], 'disabled size=10');
+        $mform->addElement('text', 'link', get_string('linkedcourse', 'enrol_metagroup'));
         $mform->setType('link', PARAM_INT);
         $mform->addRule('link', get_string('error'), 'required', null, false);
 
-        $mform->addElement('select', 'groups', get_string('form:group', 'enrol_metagroup'), [''], 'disabled size=5');
-        $mform->setType('groups', PARAM_INT);
-        $mform->addRule('groups', get_string('error'), 'required', null, false);
+        // $mform->addElement('select', 'group', get_string('form:group', 'enrol_metagroup'), [''], 'disabled size=5');
+        $mform->addElement('text', 'group', get_string('linkedcourse', 'enrol_metagroup'));
+        $mform->setType('group', PARAM_INT);
+        $mform->addRule('group', get_string('error'), 'required', null, false);
 
         $mform->addElement('hidden', 'id', null);
         $mform->setType('id', PARAM_INT);
         $mform->addRule('id', get_string('error'), 'required', null, false);
+        $mform->setDefault('id', $this->_customdata['id']);
+
 
         $this->add_action_buttons(true, get_string('addinstance', 'enrol'));
     }
@@ -69,6 +73,8 @@ class enrol_metagroup_addinstance_form extends moodleform
 
     public function validation($data, $files) {
         global $DB;
+
+        var_dump($data);
 
         $errors = parent::validation($data, $files);
         $course = get_course($data['link']);
@@ -89,11 +95,11 @@ class enrol_metagroup_addinstance_form extends moodleform
             return $errors;
         }
 
-        $existing = $DB->get_records('enrol', ['enrol' => 'metagroup', 'courseid' => $this->course->id], '', 'customint1, customint2, id');
+        $existing = $DB->get_records('enrol', ['enrol' => 'metagroup', 'courseid' => $data['id']], '', 'customint1, customint2, id');
         if (
             ($course->id == SITEID) ||
-            ($course->id == $this->course->id) ||
-            (array_key_exists($course->id, $existing) && ($existing[$course->id]['customint2'] == $data['groups']))
+            ($course->id == $data['id']) ||
+            (array_key_exists($course->id, $existing) && ($existing[$course->id]->customint2 == $data['group']))
         ) {
             $errors['link'] = get_string('error');
             return $errors;
