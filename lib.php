@@ -45,7 +45,7 @@ class enrol_metagroup_plugin extends enrol_plugin {
         } elseif (empty($instance->name)) {
             $course = get_course($instance->customint1);
             if ($course) {
-                $coursename = $course->shortname;
+                $coursename = format_string(get_course_display_name_for_list($course));
             } else {
                 // Use course id, if course is deleted.
                 $coursename = $instance->customint1;
