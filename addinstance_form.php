@@ -17,87 +17,90 @@
 /**
  * Adds instance form
  *
- * @package    enrol_metagroup
- * @copyright  2010 Petr Skoda {@link http://skodak.org}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   enrol_metagroup
+ * @copyright 2021 Berengar W. Lehr {@link http://uni-jena.de}
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once("$CFG->libdir/formslib.php");
-//add group library to show groups
-//require_once($CFG->libdir . '/grouplib.php');
-//require_once($CFG->dirroot . '/group/lib.php');
+require_once $CFG->libdir . '/formslib.php';
+require_once $CFG->libdir . '/datalib.php';
 
-class enrol_metagroup_addinstance_form extends moodleform {
-    protected $course;
+class enrol_metagroup_addinstance_form extends moodleform
+{
 
-    function definition() {
-        global $CFG, $DB;
 
-        $mform  = $this->_form;
-        $course = $this->_customdata;
-        $this->course = $course;
+    public function definition() {
+        $mform = $this->_form;
 
-        // TODO: this has to be done via ajax or else it will fail very badly on large sites!
-        $courses = array('' => get_string('choosedots'));
-        $select = ', ' . context_helper::get_preload_record_columns_sql('ctx');
-        $join = "LEFT JOIN {context} ctx ON (ctx.instanceid = c.id AND ctx.contextlevel = :contextlevel)";
-        $sql = "SELECT c.id, c.fullname, c.shortname, c.visible $select FROM {course} c $join ORDER BY c.sortorder ASC";
-        debugging($sql);
-        $rs = $DB->get_recordset_sql($sql, array('contextlevel' => CONTEXT_COURSE));
-        foreach ($rs as $c) {
-            if ($c->id == SITEID or $c->id == $course->id) {
-                continue;
-            }
-            context_helper::preload_from_record($c);
-            $coursecontext = context_course::instance($c->id);
-            if (!$c->visible and !has_capability('moodle/course:viewhiddencourses', $coursecontext)) {
-                continue;
-            }
-            if (!has_capability('enrol/metagroup:selectaslinked', $coursecontext)) {
-                continue;
-            }
-            $courses[$c->id] = $coursecontext->get_context_name(false);
-        }
-        $rs->close();
+        $mform->addElement('header', 'general', get_string('pluginname', 'enrol_metagroup'));
 
-        $mform->addElement('header','general', get_string('pluginname', 'enrol_metagroup'));
+        $mform->addGroup(
+            [
+                $mform->createElement('radio', 'field', '', get_string('form:field_name', 'enrol_metagroup'), 0),
+                $mform->createElement('radio', 'field', '', get_string('form:field_id', 'enrol_metagroup'), 1),
+            ],
+            'field_types',
+            '',
+            [' '],
+            false
+        );
+        $mform->setDefault('field', 1);
 
-        $mform->addElement('select', 'link', get_string('linkedcourse', 'enrol_metagroup'), $courses);
-        $mform->addElement('select', 'groups','Groups',array(20884 => 20884));
-//        $mform->addRule('link', get_string('required'), 'required', null, 'client');
-//        $mform->addElement('text', 'test', 'Test');
+        $mform->addElement('text', 'search', get_string('form:searchterm', 'enrol_metagroup'), [ 'autofocus' => 'autofocus' ]);
+        $mform->setType('search', PARAM_TEXT);
+
+        $mform->addElement('text', 'link', get_string('linkedcourse', 'enrol_metagroup'));
+        $mform->setType('link', PARAM_INT);
+        $mform->addRule('link', get_string('error'), 'required', null, false);
+
+        $mform->addElement('text', 'group', get_string('linkedcourse', 'enrol_metagroup'));
+        $mform->setType('group', PARAM_INT);
+        $mform->addRule('group', get_string('error'), 'required', null, false);
 
         $mform->addElement('hidden', 'id', null);
         $mform->setType('id', PARAM_INT);
+        $mform->addRule('id', get_string('error'), 'required', null, false);
+        $mform->setDefault('id', $this->_customdata['id']);
+
 
         $this->add_action_buttons(true, get_string('addinstance', 'enrol'));
-
-        $this->set_data(array('id'=>$course->id));
     }
 
-    function validation($data, $files) {
-        global $DB, $CFG;
 
-        // TODO: this is duplicated here because it may be necessary once we implement ajax course selection element
+    public function validation($data, $files) {
+        global $DB;
 
         $errors = parent::validation($data, $files);
-        if (!$c = $DB->get_record('course', array('id'=>$data['link']))) {
+        $course = get_course($data['link']);
+
+        if (!$course) {
             $errors['link'] = get_string('required');
-        } else {
-            $coursecontext = context_course::instance($c->id);
-            $existing = $DB->get_records('enrol', array('enrol'=>'metagroup', 'courseid'=>$this->course->id), '', 'customint1, customint2, id');
-            if (!$c->visible and !has_capability('moodle/course:viewhiddencourses', $coursecontext)) {
-                $errors['link'] = get_string('error');
-            } else if (!has_capability('enrol/metagroup:selectaslinked', $coursecontext)) {
-                $errors['link'] = get_string('error');
-            } else if ($c->id == SITEID or $c->id == $this->course->id or (isset($existing[$c->id]) and $existing[$c->id]['customint2'] == $data['groups'])) {
-                $errors['link'] = get_string('error');
-            }
+            return $errors;
+        }
+
+        $coursecontext = context_course::instance($course->id);
+        if (!(($course->visible) || has_capability('moodle/course:viewhiddencourses', $coursecontext))) {
+            $errors['link'] = get_string('error');
+            return $errors;
+        }
+
+        if (!has_capability('enrol/metagroup:selectaslinked', $coursecontext)) {
+            $errors['link'] = get_string('error');
+            return $errors;
+        }
+
+        $existing = $DB->get_records('enrol', ['enrol' => 'metagroup', 'courseid' => $data['id']], '', 'customint1, customint2, id');
+        if (
+            ($course->id == SITEID) ||
+            ($course->id == $data['id']) ||
+            (array_key_exists($course->id, $existing) && ($existing[$course->id]->customint2 == $data['group']))
+        ) {
+            $errors['link'] = get_string('error');
+            return $errors;
         }
 
         return $errors;
     }
 }
-
