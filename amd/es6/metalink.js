@@ -1,4 +1,3 @@
-import { filter } from 'lodash'
 import debounce from 'lodash/debounce'
 
 let lang = {}

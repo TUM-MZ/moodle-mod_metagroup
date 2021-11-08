@@ -51,12 +51,10 @@ class enrol_metagroup_addinstance_form extends moodleform
         $mform->addElement('text', 'search', get_string('form:searchterm', 'enrol_metagroup'), [ 'autofocus' => 'autofocus' ]);
         $mform->setType('search', PARAM_TEXT);
 
-        // $mform->addElement('select', 'link', get_string('linkedcourse', 'enrol_metagroup'), [''], 'disabled size=10');
         $mform->addElement('text', 'link', get_string('linkedcourse', 'enrol_metagroup'));
         $mform->setType('link', PARAM_INT);
         $mform->addRule('link', get_string('error'), 'required', null, false);
 
-        // $mform->addElement('select', 'group', get_string('form:group', 'enrol_metagroup'), [''], 'disabled size=5');
         $mform->addElement('text', 'group', get_string('linkedcourse', 'enrol_metagroup'));
         $mform->setType('group', PARAM_INT);
         $mform->addRule('group', get_string('error'), 'required', null, false);
@@ -73,8 +71,6 @@ class enrol_metagroup_addinstance_form extends moodleform
 
     public function validation($data, $files) {
         global $DB;
-
-        var_dump($data);
 
         $errors = parent::validation($data, $files);
         $course = get_course($data['link']);
