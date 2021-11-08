@@ -34,29 +34,35 @@ class enrol_metagroup_plugin extends enrol_plugin {
     /**
      * Returns localised name of enrol instance
      *
-     * @param stdClass $instance (null is accepted too)
+     * @param  stdClass $instance (null is accepted too)
      * @return string
      */
     public function get_instance_name($instance) {
         global $DB;
 
         if (empty($instance)) {
-            $enrol = $this->get_name();
-            return get_string('pluginname', 'enrol_'.$enrol);
-        } else if (empty($instance->name)) {
-            $enrol = $this->get_name();
-            $course = $DB->get_record('course', array('id'=>$instance->customint1));
+            return get_string('pluginname', 'enrol_metagroup');
+        } elseif (empty($instance->name)) {
+            $course = get_course($instance->customint1);
             if ($course) {
-                $coursename = format_string(get_course_display_name_for_list($course));
+                $coursename = $course->shortname;
             } else {
                 // Use course id, if course is deleted.
                 $coursename = $instance->customint1;
             }
-            return get_string('pluginname', 'enrol_' . $enrol) . ' (' . $coursename . ')';
+            $group = $DB->get_record('groups', ['id' => $instance->customint2]);
+            if ($group) {
+                $groupname = $group->name;
+            } else {
+                $coursename = $instance->customint2;
+            }
+            $langGroup = get_string('form:group', 'enrol_metagroup');
+            return get_string('pluginname', 'enrol_metagroup') . ": {$coursename}, {$langGroup} {$groupname}";
         } else {
             return format_string($instance->name);
         }
     }
+
 
     /**
      * Returns link to page which may be used to add new instance of enrolment plugin in course.
