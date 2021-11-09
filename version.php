@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Adds instance form
+ * Meta enrolment plugin version specification
  *
  * @package   enrol_metagroup
  * @copyright 2021 Berengar W. Lehr {@link http://uni-jena.de}
