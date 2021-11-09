@@ -50,7 +50,7 @@ class enrol_metagroup_plugin extends enrol_plugin {
                 // Use course id, if course is deleted.
                 $coursename = $instance->customint1;
             }
-            $group = $DB->get_record('groups', ['id' => $instance->customint2]);
+            $group = $DB->get_record('groups', ['id' => $instance->customint2], 'name');
             if ($group) {
                 $groupname = $group->name;
             } else {

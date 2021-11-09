@@ -22,9 +22,14 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2021110902;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2020061500;        // Requires this Moodle version
-$plugin->component = 'enrol_metagroup'; // Full name of the plugin (used for diagnostics)
-$plugin->cron      = 60 * 60;           // Run cron every hour by default, it is not out-of-sync often
+$functions = [
+    'enrol_metagroup_add' => [
+        'classname'    => 'metagroup_enrollment',
+        'methodname'   => 'add_metagroup',
+        'classpath'    => 'enrol/metagroup/classes/external/enrollment.php',
+        'description'  => 'Adds meta enrollment: Members of a group inside a course are added as members to another course',
+        'type'         => 'write',
+        'ajax'         => true,
+        'capabilities' => 'moodle/course:enrolconfig enrol/metagroup',
+    ],
+];
