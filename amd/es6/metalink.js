@@ -16,6 +16,7 @@ export const init = function (_lang) {
   const link = document.querySelector('#id_link')
   link.outerHTML = `<select class="custom-select" name=${link.name} id="id_link" disabled></select>`
   window.requestAnimationFrame(_ => {
+    // one needs to wait until the replacement is done
     const link = document.querySelector('#id_link')
     link.addEventListener('change', handleLoadGroups)
   })
