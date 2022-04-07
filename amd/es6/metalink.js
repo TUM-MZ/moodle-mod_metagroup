@@ -1,3 +1,5 @@
+/* eslint-env amd */
+
 import debounce from 'lodash/debounce'
 
 let lang = {}
@@ -13,7 +15,10 @@ export const init = function (_lang) {
 
   const link = document.querySelector('#id_link')
   link.outerHTML = `<select class="custom-select" name=${link.name} id="id_link" disabled></select>`
-  link.addEventListener('change', handleLoadGroups)
+  window.requestAnimationFrame(_ => {
+    const link = document.querySelector('#id_link')
+    link.addEventListener('change', handleLoadGroups)
+  })
 
   const group = document.querySelector('#id_group')
   group.outerHTML = `<select class="custom-select" name="${group.name}" id="id_group" disabled></select>`
