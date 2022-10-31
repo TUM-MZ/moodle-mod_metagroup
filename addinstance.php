@@ -83,9 +83,9 @@ if (
 ) {
     $groups = groups_get_all_groups($course);
     $teachers = get_enrolled_users($context, 'enrol/manual:enrol');
-    echo("Nothing to see");
+    echo("<form target=\"/enrol/metagroup/create_group_rooms.php\">");
     echo ("<table>");
-    echo("<thead><tr><th>Lehrkraft / Gruppe</th>");
+    echo("<thead><tr><th>" . get_string('tableheading', 'enrol_metagroup') . "</th>");
     foreach ($groups as $group) {
         $name = groups_get_group_name($group);
         echo("<td>${name}</td>");
@@ -101,7 +101,8 @@ if (
     }
     echo("</tr></thead>");
     echo("</table>");
-    echo("Do you want to split the course?");
+    echo("<button>" . get_string('dosplitbutton', 'enrol_metagroup') . "</button>");
+    echo("</form>");
 }
 
 echo $OUTPUT->footer();

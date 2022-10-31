@@ -58,3 +58,6 @@ $string['link_course_error'] = 'Invalid link course';
 $string['link_group_error']  = 'Invalid link group';
 $string['existing_error']    = 'Enrolment already exists';
 $string['eligibile']         = 'Enrolment will be added';
+
+$string['tableheading']      = 'Teacher / Group';
+$string['dosplitbutton']     = 'Split room in group rooms';
