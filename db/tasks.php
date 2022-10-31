@@ -17,21 +17,21 @@
 /**
  * Legacy log reader cron task.
  *
- * @package    logstore_legacy
- * @copyright  2014 Petr Skoda {@link http://skodak.org}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   logstore_legacy
+ * @copyright 2014 Petr Skoda {@link http://skodak.org}
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = array(
-    array(
+$tasks = [
+    [
         'classname' => 'enrol_metagroup\task',
-        'blocking' => 0,
-        'minute' => '0',
-        'hour' => '*/6',
-        'day' => '*',
+        'blocking'  => 0,
+        'minute'    => '8',
+        'hour'      => '*',
+        'day'       => '*',
         'dayofweek' => '*',
-        'month' => '*'
-    ),
-);
+        'month'     => '*',
+    ]
+];
