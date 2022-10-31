@@ -77,12 +77,32 @@ if ($mform->is_cancelled()) {
 echo $OUTPUT->header();
 $mform->display();
 
-if (groups_get_course_groupmode($course) == SEPARATEGROUPS &&
-    !has_capability('moodle/site:accessallgroups', $context)) {
-        echo("Nothing to see");
-        var_dump(groups_get_all_groups($course));
-        echo("Do you want to split the course?");
+if (
+    groups_get_course_groupmode($course) == SEPARATEGROUPS &&
+    has_capability('enrol/manual:enrol', $context)
+) {
+    $groups = groups_get_all_groups($course);
+    $teachers = get_enrolled_users($context, 'enrol/manual:enrol');
+    echo("<form target=\"/enrol/metagroup/create_group_rooms.php\">");
+    echo ("<table>");
+    echo("<thead><tr><th>" . get_string('tableheading', 'enrol_metagroup') . "</th>");
+    foreach ($groups as $group) {
+        $name = groups_get_group_name($group);
+        echo("<td>${name}</td>");
     }
+    foreach($teachers as $teacher) {
+        $firstname = $teacher->firstname;
+        $lastname = $teacher->lastname;
+        echo("<th>${firstname} ${lastname}</th>");
+        foreach ($groups as $group) {
+            $login = $teacher->login;
+            echo("<td><input type=\"checkbox\" name=\"${login}_${group}\"></td>");
+        }
+    }
+    echo("</tr></thead>");
+    echo("</table>");
+    echo("<button>" . get_string('dosplitbutton', 'enrol_metagroup') . "</button>");
+    echo("</form>");
 }
 
 echo $OUTPUT->footer();

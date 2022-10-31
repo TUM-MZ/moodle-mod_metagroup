@@ -60,3 +60,6 @@ $string['link_course_error'] = 'Ungültiger Kurs zum verbinden';
 $string['link_group_error']  = 'Ungültige Gruppe zum verbinden';
 $string['existing_error']    = 'Einschreibung existiert bereits';
 $string['eligibile']         = 'Einschreibung wird hinzugefügt';
+
+$string['tableheading']      = 'Lehrkraft / Gruppe';
+$string['dosplitbutton']     = 'Raum in Gruppenräume teilen';
