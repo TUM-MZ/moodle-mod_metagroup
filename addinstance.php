@@ -76,4 +76,13 @@ if ($mform->is_cancelled()) {
 
 echo $OUTPUT->header();
 $mform->display();
+
+if (groups_get_course_groupmode($course) == SEPARATEGROUPS &&
+    !has_capability('moodle/site:accessallgroups', $context)) {
+        echo("Nothing to see");
+        var_dump(groups_get_all_groups($course));
+        echo("Do you want to split the course?");
+    }
+}
+
 echo $OUTPUT->footer();
